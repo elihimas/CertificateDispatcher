@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Envio de Certificado";
+}
+<script>
+    var RESULTS = {
+        SUCCESS: @((int)CertificateDispather.Models.SendCertificateResult.SUCCESS),
+        EMPTY_MODEL:@((int)CertificateDispather.Models.SendCertificateResult.EMPTY_MODEL),
+        EMPTY_SHEET:@((int)CertificateDispather.Models.SendCertificateResult.EMPTY_SHEET),
+        INVALID_SHEET: @((int)CertificateDispather.Models.SendCertificateResult.INVALID_SHEET)
+    };
+
+    function generateAndDispatchCallback(data) {
+        $("#btSendData").button("reset");
+        var message = "";
+
+        if (data.result == RESULTS.SUCCESS) {
+            $("#txtModel").summernote("reset");
+            $("#txtParticipants").val("");
+
+            message = "Certificados enviados com sucesso!";
+        } else if (data.result == RESULTS.EMPTY_MODEL) {
+            message = "Modelo inválido! Por favor, preencha o modelo!";
+        } else if (data.result == RESULTS.EMPTY_SHEET) {
+            message = "Planilha inválida! Por favor, preencha a planilha!";
+        } else if (data.result == RESULTS.INVALID_SHEET) {
+            message = "Planilha inválida! A planilha deve ter o cabeçalho \"email\". Por favor, verifique a planilha e tente novamente!";
+        }
+
+        if (message != "") {
+            showMessage(message);
+        }
+    }
+
+    function sendData() {
+        $("#btSendData").button("loading")
+        var modelText = $("#txtModel").val();
+        var participantsText = $("#txtParticipants").val();
+
+        var certificationData = {
+            "modelText": modelText,
+            "participantsText": participantsText
+        };
+
+        $.post("Home/GenerateCertificatesAndDispatch", certificationData, generateAndDispatchCallback);
+    }
+
+    function sendImage() {
+        $('#imgForm').submit();
+    }
+</script>
+
+<div class="container">
+    <h2>1 - Criar Modelo</h2>
+    <div class="row">
+        <div class="col-xs-12">
+            <form id="imgForm" method="post" name="bgForm" enctype="multipart/form-data" action="UploadBackgroundImage">
+                <label class="btn btn-default btn-file">
+                    Anexar imagem de fundo <input name="file" type="file" style="display: none;" onchange="sendImage()" accept="image/x-png,image/gif,image/jpeg">
+                </label>
+                <a href="https://materiais.even3.com.br/templates-de-certificados" target="_blank">Dica: Templates de Certificados</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <textarea id="txtModel"  class="summernote"></textarea>
+        </div>
+    </div>
+
+    <h2>2 - Importar participantes</h2>
+    <p>
+        Copie o conteúdo da planilha excel, incluindo os cabeçalhos e cole aqui
+    </p>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <textarea id="txtParticipants" class="form-control" rows="10"></textarea>
+        </div>
+    </div>
+
+    <h2>3 - Enviar Certificados</h2>
+    <div class="row">
+        <div class="col-xs-12">
+            <button id="btSendData"
+                    class="btn btn-primary"
+                    onclick="sendData()"
+                    data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Aguarde, enviando">
+                Enviar por e-mail
+            </button>
+        </div>
+    </div>
+</div>

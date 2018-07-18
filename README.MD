@@ -1,0 +1,1 @@
+Para executar este aplicativo, é necessário modificar a variável "apiKey", localizada na classe "SendCertificateCommand", no projeto "CertificateDispatherCore"
